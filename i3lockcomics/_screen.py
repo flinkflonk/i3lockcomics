@@ -3,7 +3,6 @@
 import re
 from subprocess import Popen, PIPE
 
-
 _xrandr = Popen(['xrandr'], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 xrandr, err = _xrandr.communicate()
 
@@ -51,5 +50,19 @@ def get_screens_info():
     return out
 
 
+def get_screens_info2():
+    cmd = ['xrandr']
+    cmd2 = ['grep', '*']
+    p = Popen(cmd, stdout=PIPE)
+    p2 = Popen(cmd2, stdin=p.stdout, stdout=PIPE)
+    p.stdout.close()
+    resolution_string, junk = p2.communicate()
+    resolution = resolution_string.split()[0].decode()
+    resarr = resolution.split('x')
+    return (int(resarr[0]), int(resarr[1]))
+
 if __name__ == '__main__':
     print(get_screens_info())
+    print()
+    width, height = get_screens_info2()
+    print(f"resolution: {width} x {height}")

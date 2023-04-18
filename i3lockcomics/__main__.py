@@ -14,7 +14,7 @@ from i3lockcomics._args import args as args
 from i3lockcomics._printv import printv, printd
 import i3lockcomics._getcomics as _getcomics
 from i3lockcomics._check_network import internet_available as internet_available
-from i3lockcomics._screen import get_screens_info
+from i3lockcomics._screen import get_screens_info, get_screens_info2
 import i3lockcomics._timing
 import hashlib
 
@@ -158,17 +158,23 @@ if check_curl == 1:
 
 
 # Get screen info
-screens = get_screens_info()
-for screen in screens:
-    if screens[screen]['primary']:
-        printd('Found primary screen {}'.format(screen))
-        offset = screens[screen]['offset'].split('+')
-        res = screens[screen]['res'].split('x')
-        mon_w = res[0]
-        mon_h = res[1]
-        offset_w = int(offset[0])
-        offset_h = int(offset[1])
-        pass
+# screens = get_screens_info()
+# for screen in screens:
+#     if screens[screen]['primary']:
+#         printd('Found primary screen {}'.format(screen))
+#         offset = screens[screen]['offset'].split('+')
+#         res = screens[screen]['res'].split('x')
+#         mon_w = res[0]
+#         mon_h = res[1]
+#         offset_w = int(offset[0])
+#         offset_h = int(offset[1])
+#         pass
+
+#NOTE: hack
+(mon_w, mon_h) = get_screens_info2()
+offset_w = 0
+offset_h = 0
+
 # Setting max width for strips
 max_screen_estate = 0.8
 max_w = int(int(mon_w) * max_screen_estate)
