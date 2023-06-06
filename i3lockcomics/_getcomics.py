@@ -232,6 +232,16 @@ def comics(comic=False):
             link = False
         return {'link': link}
 
+    def getcomic_wizardofid():
+        '''
+        Gets the link to the most recent Wizard of Id comic strip.
+        '''
+        try:
+            link = get_gocomics('https://www.gocomics.com/wizardofid/')
+        except Exception:
+            link = False
+        return {'link': link}
+
     if comic == 'xkcd':
         link = getcomic_xkcd()['link']
         extra_info = getcomic_xkcd()['extra_info']
