@@ -10,12 +10,12 @@ from random import randint
 import imghdr
 import inspect
 import requests
-from i3lockcomics._args import args as args
-from i3lockcomics._printv import printv, printd
-import i3lockcomics._getcomics as _getcomics
-from i3lockcomics._check_network import internet_available as internet_available
-from i3lockcomics._screen import get_screens_info, get_screens_info2
-import i3lockcomics._timing
+from ._args import args as args
+from ._printv import printv, printd
+from ._getcomics import comics
+from ._check_network import internet_available as internet_available
+from ._screen import get_screens_info2
+from ._timing import midlog
 import hashlib
 
 
@@ -31,7 +31,7 @@ def download_file(link, strip):
                     # and set chunk_size parameter to None.
                     f.write(chunk)
         return True
-    except(requests.exceptions.ConnectionError):
+    except (requests.exceptions.ConnectionError):
         return False
 
 
@@ -104,7 +104,7 @@ def sort_filename_by_date(filename):
         month = _date.group(2)
         day = _date.group(3)
         return year, month, day
-    except(AttributeError):
+    except (AttributeError):
         return (str(0), str(0), str(0))
 
 
@@ -170,7 +170,7 @@ if check_curl == 1:
 #         offset_h = int(offset[1])
 #         pass
 
-#NOTE: hack
+# NOTE: hack
 (mon_w, mon_h) = get_screens_info2()
 offset_w = 0
 offset_h = 0
@@ -205,7 +205,7 @@ def screenshot(strip=False, old_strip=False):
         '''
         Take a pillow_object and obfuscate it as wanted
         '''
-        obfusc_filters = ['pixel', 'morepixel', 'blur', 'moreblur', 'gradient', 'solid']
+        # unused: obfusc_filters = ['pixel', 'morepixel', 'blur', 'moreblur', 'gradient', 'solid']
         image_in_w = image_in.size[0]
         image_in_h = image_in.size[1]
         if 'pixel' in args.filter:
@@ -237,13 +237,14 @@ def screenshot(strip=False, old_strip=False):
             right_color = 128
             image_in_s = image_in_w / (right_color - left_color)
             for x in range(right_color - left_color):
-                image_draw.rectangle([(x*image_in_s,0),((x+1)*image_in_s-1,image_in_h)], fill=f"#{x:02x}{x:02x}{x:02x}")
+                image_draw.rectangle([(x*image_in_s, 0), ((x+1)*image_in_s-1, image_in_h)],
+                                     fill=f"#{x:02x}{x:02x}{x:02x}")
         elif 'solid' in args.filter:
             image_draw = ImageDraw.Draw(image_in)
-            image_draw.rectangle([(0,0),(image_in_w,image_in_h)], fill="#202020")
+            image_draw.rectangle([(0, 0), (image_in_w, image_in_h)], fill="#202020")
         return image_in
 
-    i3lockcomics._timing.midlog('Starting `{}`'.format(inspect.stack()[0][3]))
+    midlog('Starting `{}`'.format(inspect.stack()[0][3]))
     temp_out = '{}/out.png'.format(temp_folder)
     # If tempfile already exist, remove it and take new screenshot
     if os.path.exists(temp_out):
@@ -281,7 +282,7 @@ def screenshot(strip=False, old_strip=False):
             placement_h += offset_h
             temp_obfuscated.paste(img, (placement_w, placement_h))
             temp_obfuscated.save(temp_out)
-        i3lockcomics._timing.midlog('`{}` done'.format(inspect.stack()[0][3]))
+        midlog('`{}` done'.format(inspect.stack()[0][3]))
     return temp_out
 
 
@@ -306,7 +307,7 @@ def main():
         sys.exit()
 
     # Fetch the newest comic, either the chosen one or a random one
-    i3lockcomics._timing.midlog('Getting comic...')
+    midlog('Getting comic...')
     if not args.comic:
         args.comic = _getcomics.comics()[randint(0, len(
             _getcomics.comics()) - 1)]
@@ -332,7 +333,7 @@ def main():
                                              old_strip=True)])
             sys.exit()
     if internet_available:
-        _comics_in = _getcomics.comics(comic=args.comic)
+        _comics_in = comics(comic=args.comic)
         link = _comics_in['link']
         extra_info = _comics_in['extra_info']
     else:
@@ -346,7 +347,7 @@ def main():
         printv('Comic returns `False` in link. Using XKCD-fallback strip')
         strip = backup_strip
     else:
-        i3lockcomics._timing.midlog('Starting check comic or download')
+        midlog('Starting check comic or download')
         # ...but if all is ok, continue.
         # Check to see if the latest comic is already in place
         if not os.path.exists(strip):
@@ -373,7 +374,7 @@ def main():
                 else:
                     strip = _getcomics.xkcd_alttext(strip, extra_info)
                     printd('...with alt-text')
-        i3lockcomics._timing.midlog('Downloaded comic')
+        midlog('Downloaded comic')
 
     # Run lock file
     if args.test:
