@@ -9,10 +9,11 @@ import glob
 from random import randint
 import imghdr
 import inspect
+import pendulum
 import requests
 from ._args import args as args
 from ._printv import printv, printd
-from ._getcomics import comics
+from ._getcomics import comics, get_backup_strip, print_comic_list, xkcd_alttext
 from ._check_network import internet_available as internet_available
 from ._screen import get_screens_info2
 from ._timing import midlog
@@ -287,30 +288,31 @@ def screenshot(strip=False, old_strip=False):
 
 
 def main():
-    global args, _getcomics
-    now = _getcomics.now
+    global args
+
+    now = pendulum.now().format('YYYY-MM-DD')
     # Set folder for the images saved by the script
     strips_folder = '{}/strips/'.format(cachedir)
     if not os.path.exists(strips_folder):
         call(['mkdir', strips_folder])
-    backup_strip = _getcomics.get_backup_strip(args.comic, cachedir, sysdir)
+    backup_strip = get_backup_strip(args.comic, cachedir, sysdir)
 
     # Only print a list over available comics
     if args.list_comics:
         # Do a test of all the comics
         if args.test:
-            for comic in _getcomics.comics():
-                link = _getcomics.comics(comic)['link']
+            for comic in comics():
+                link = comics(comic)['link']
                 print('{}: {}'.format(comic, link))
             sys.exit()
-        _getcomics.print_comic_list()
+        print_comic_list()
         sys.exit()
 
     # Fetch the newest comic, either the chosen one or a random one
     midlog('Getting comic...')
     if not args.comic:
-        args.comic = _getcomics.comics()[randint(0, len(
-            _getcomics.comics()) - 1)]
+        args.comic = comics()[randint(0, len(
+            comics()) - 1)]
         printv('Comic not chosen, but randomly chose `{}`'.format(args.comic))
     # Set filename for comic strip to be saved
     if args.xkcd_no_alttext is True:
@@ -372,7 +374,7 @@ def main():
                 if args.xkcd_no_alttext is True:
                     printd('...but no alt-text')
                 else:
-                    strip = _getcomics.xkcd_alttext(strip, extra_info)
+                    strip = xkcd_alttext(strip, extra_info)
                     printd('...with alt-text')
         midlog('Downloaded comic')
 
