@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import pendulum
 import requests
 from bs4 import BeautifulSoup as bs
 from PIL import Image, ImageFont, ImageDraw
@@ -10,7 +9,6 @@ import os
 import glob
 import sys
 
-now = pendulum.now().format('YYYY-MM-DD')
 comic_names = []
 
 # The font directory is one level higher than this file.
@@ -27,7 +25,7 @@ def get_font(fontname, size):
             size
         )
         return font_object
-    except(OSError):
+    except (OSError):
         print('Couldn\'t find font \'{}\''.format(fontname))
         print('Searched {}'.format(FONT_DIR))
         sys.exit()
@@ -132,7 +130,7 @@ def comics(comic=False):
             current_json = json.loads(current_strip.text)
             link = current_json['img']
             extra_info = '"{}"'.format(current_json['alt'])
-        except:
+        except Exception:
             link = False
             extra_info = ''
         return {'link': link, 'extra_info': extra_info}
@@ -150,39 +148,40 @@ def comics(comic=False):
             link = 'https://www.tu.no'
             link += figure.find('div', attrs={'class': 'image-container'})\
                 .find('img')['src']
-        except:
+        except Exception:
             link = False
         return {'link': link}
 
-    def getcomic_dilbert():
-        '''
-        Gets the link to the most recent Dilbert comic strip.
-        '''
-        global now
-        try:
-            req = requests.get('http://dilbert.com/strip/{}'.format(now),
-                               timeout=3)
-            soup = bs(req.content, 'html5lib', from_encoding="utf-8")
-            strip = soup.find('div', attrs={'class': 'img-comic-container'})
-            link = strip.find('img',
-                              attrs={'class': 'img-responsive img-comic'}
-                              )['src']
-        except:
-            link = False
-        return {'link': link}
-
+    # def getcomic_dilbert():
+    #     '''
+    #     Gets the link to the most recent Dilbert comic strip.
+    #     '''
+    #     global now
+    #     try:
+    #         req = requests.get('http://dilbert.com/strip/{}'.format(now),
+    #                            timeout=3)
+    #         soup = bs(req.content, 'html5lib', from_encoding="utf-8")
+    #         strip = soup.find('div', attrs={'class': 'img-comic-container'})
+    #         link = strip.find('img',
+    #                           attrs={'class': 'img-responsive img-comic'}
+    #                           )['src']
+    #     except Exception:
+    #         link = False
+    #     return {'link': link}
 
     def getcomic_commitstrip():
         '''
         Gets the link to the most recent CommitStrip comic strip.
         '''
-#        try:
-        req = requests.get('http://www.commitstrip.com/en/feed/',
-                           timeout=3)
-        soup = bs(req.content, 'html5lib', from_encoding="utf-8")\
-            .find_all('item')[0]
-        link = soup.find('content:encoded')
-        link = re.search(r'.*CDATA\[<img src="(.*)" alt="', str(link)).group(1)
+        try:
+            req = requests.get('http://www.commitstrip.com/en/feed/',
+                               timeout=3)
+            soup = bs(req.content, 'html5lib', from_encoding="utf-8")\
+                .find_all('item')[0]
+            link = soup.find('content:encoded')
+            link = re.search(r'<img alt="".+src="(.*)" ', str(link)).group(1)
+        except Exception:
+            link = False
         return {'link': link}
 
     def getcomic_pvp():
@@ -195,7 +194,7 @@ def comics(comic=False):
             soup = bs(req.content, 'html5lib', from_encoding="utf-8")
             link = soup.find('section', attrs={'class': 'comic-art'})\
                 .find('img')['src']
-        except:
+        except Exception:
             link = False
         return {'link': link}
 
@@ -209,7 +208,7 @@ def comics(comic=False):
             soup = bs(req.content, 'html5lib', from_encoding="iso-5589-1")
             imgs = soup.find_all('item')
             link = re.search(r'img src=\"(.*\.png)', str(imgs[0])).group(1)
-        except:
+        except Exception:
             link = False
         return {'link': link}
 
@@ -219,7 +218,7 @@ def comics(comic=False):
         '''
         try:
             link = get_gocomics('https://www.gocomics.com/getfuzzy/')
-        except:
+        except Exception:
             link = False
         return {'link': link}
 
@@ -229,7 +228,7 @@ def comics(comic=False):
         '''
         try:
             link = get_gocomics('https://www.gocomics.com/calvinandhobbes/')
-        except:
+        except Exception:
             link = False
         return {'link': link}
 
