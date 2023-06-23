@@ -232,6 +232,26 @@ def comics(comic=False):
             link = False
         return {'link': link}
 
+    def getcomic_alleyoop():
+        '''
+        Gets the link to the most recent Alley Oop comic strip.
+        '''
+        try:
+            link = get_gocomics('https://www.gocomics.com/alley-oop/')
+        except Exception:
+            link = False
+        return {'link': link}
+
+    def getcomic_berkeleymews():
+        '''
+        Gets the link to the most recent Berkeley Mews comic strip.
+        '''
+        try:
+            link = get_gocomics('https://www.gocomics.com/berkeley-mews/')
+        except Exception:
+            link = False
+        return {'link': link}
+
     def getcomic_wizardofid():
         '''
         Gets the link to the most recent Wizard of Id comic strip.
